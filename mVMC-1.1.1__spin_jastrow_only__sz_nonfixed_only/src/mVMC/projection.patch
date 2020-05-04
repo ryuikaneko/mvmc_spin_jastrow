@@ -1,0 +1,52 @@
+--- projection_before.c	2020-05-04 14:02:28.469908769 +0900
++++ projection_after.c	2020-05-04 14:02:04.662413644 +0900
+@@ -77,14 +77,17 @@
+     }
+   }
+ 
+-  /* Jastrow factor exp(sum {v_ij * (ni-1) * (nj-1)}) */
++//  /* Jastrow factor exp(sum {v_ij * (ni-1) * (nj-1)}) */
++  /* spin Jastrow factor exp(sum {4v_ij * Szi * Szj) = exp(sum {v_ij * (n0i-n01) * (n0j-n1j)}) */
+   if(NJastrowIdx>0) {
+     offset = NGutzwillerIdx;
+     for(ri=0;ri<nSite;ri++) {
+-      xi = n0[ri]+n1[ri]-1;
++//      xi = n0[ri]+n1[ri]-1;
++      xi = n0[ri]-n1[ri];
+       if(xi==0) continue;
+       for(rj=ri+1;rj<nSite;rj++) {
+-        xj = n0[rj]+n1[rj]-1;
++//        xj = n0[rj]+n1[rj]-1;
++        xj = n0[rj]-n1[rj];
+         idx = offset + JastrowIdx[ri][rj];
+         projCnt[idx] += xi*xj;
+       }
+@@ -183,14 +186,16 @@
+     /* update [ri][rj] */
+     if(ri<rj) idx = offset + JastrowIdx[ri][rj];
+     else  idx = offset + JastrowIdx[rj][ri];
+-    projCntNew[idx] += n0[ri]+n1[ri]-n0[rj]-n1[rj]+1;
++//    projCntNew[idx] += n0[ri]+n1[ri]-n0[rj]-n1[rj]+1;
++    projCntNew[idx] += (1-2*s)*(n0[ri]-n1[ri]-n0[rj]+n1[rj])+1;
+     /* update [ri][rk] (rk != ri, rj) */
+     for(rk=0;rk<nSite;rk++) {
+       if(rk==rj) continue;
+       if(rk==ri) continue;
+       if(rk>ri) idx = offset + JastrowIdx[ri][rk];
+       else idx = offset + JastrowIdx[rk][ri]; 
+-      projCntNew[idx] -= n0[rk]+n1[rk]-1;
++//      projCntNew[idx] -= n0[rk]+n1[rk]-1;
++      projCntNew[idx] -= (1-2*s)*(n0[rk]-n1[rk]);
+     }
+     /* update [rj][rk] (rk != ri, rj) */
+     for(rk=0;rk<nSite;rk++) {
+@@ -198,7 +203,8 @@
+       if(rk==rj) continue;
+       if(rk>rj) idx = offset + JastrowIdx[rj][rk];
+       else idx = offset + JastrowIdx[rk][rj]; 
+-      projCntNew[idx] += n0[rk]+n1[rk]-1;
++//      projCntNew[idx] += n0[rk]+n1[rk]-1;
++      projCntNew[idx] += (1-2*s)*(n0[rk]-n1[rk]);
+     }
+   }
+ 
